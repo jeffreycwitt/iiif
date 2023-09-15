@@ -360,6 +360,20 @@ def create_manifest3(identifier, domain=None, page=None):
             # In json: /29/items/goody/goody_jp2.zip convert to goody/good_jp2.zip
             zipFile = '/'.join(bookreader['data']['brOptions']['zip'].split('/')[-2:])
 
+            # Setting logic for paging behavior and starting canvases
+            if bookreader['data']['brOptions']['defaultStartLeaf'] == 0:
+                behavior = "paged"
+                manifest.behavior = behavior
+            else: # Will have to figure out the logic for how to start on a canvas other than 0
+                pass 
+
+            if bookreader['data']['brOptions']['pageProgression'] == "lr":
+                viewingDirection = "left-to-right"
+                manifest.viewingDirection = viewingDirection
+            elif bookreader['data']['brOptions']['pageProgression'] == "rl":
+                viewingDirection = "right-to-left"
+                manifest.viewingDirection = viewingDirection
+
             for pageSpread in bookreader['data']['brOptions']['data']:
                 for page in pageSpread:
                     fileUrl = urlparse(page['uri'])
