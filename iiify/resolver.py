@@ -360,20 +360,6 @@ def create_manifest3(identifier, domain=None, page=None):
             # In json: /29/items/goody/goody_jp2.zip convert to goody/good_jp2.zip
             zipFile = '/'.join(bookreader['data']['brOptions']['zip'].split('/')[-2:])
 
-            # Setting logic for paging behavior and starting canvases
-            if bookreader['data']['brOptions']['defaultStartLeaf'] == 0:
-                behavior = "paged"
-                manifest.behavior = behavior
-            else: # Will have to figure out the logic for how to start on a canvas other than 0
-                pass 
-
-            if bookreader['data']['brOptions']['pageProgression'] == "lr":
-                viewingDirection = "left-to-right"
-                manifest.viewingDirection = viewingDirection
-            elif bookreader['data']['brOptions']['pageProgression'] == "rl":
-                viewingDirection = "right-to-left"
-                manifest.viewingDirection = viewingDirection
-
             for pageSpread in bookreader['data']['brOptions']['data']:
                 for page in pageSpread:
                     fileUrl = urlparse(page['uri'])
@@ -401,6 +387,25 @@ def create_manifest3(identifier, domain=None, page=None):
                     #                            id=f"https://iiif.archivelab.org/iiif/{identifier}${pageCount}/canvas",
                     #                            label=f"{page['leafNum']}")
                     pageCount += 1
+    
+
+
+            # Setting logic for paging behavior and starting canvases
+            # Start with paged (default) or individual behaviors
+            try:
+                if bookreader['data']['brOptions']['defaults'] == "mode/1up":
+                    manifest.behavior = "individuals"
+            except:
+                manifest.behavior = "paged"
+            
+            # Then set left-to-right or right-to-left if present
+            if bookreader['data']['brOptions']['pageProgression'] == "lr":
+                viewingDirection = "left-to-right"
+            elif bookreader['data']['brOptions']['pageProgression'] == "rl":
+                viewingDirection = "right-to-left"
+            if viewingDirection:
+                manifest.viewingDirection = viewingDirection
+
     elif mediatype == 'image':
         singleImage(metadata, identifier, manifest, uri)
     elif mediatype == 'audio' or mediatype == 'etree':
